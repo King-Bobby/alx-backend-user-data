@@ -69,3 +69,21 @@ def get_db() -> MySQLConnection:
         database=database_name
     )
     return db
+
+
+def main():
+    """the main function"""
+    logger = logging.getLogger("user_data")
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
+
+    cursor.execute("SELECT * FROM users;")
+    for row in cursor:
+        filtered_row = {k: "***" if k in PII_FIELDS
+                        else v for k, v in row.items()}
+        log_message = "[HOLBERTON] user_data INFO %s: %s;" % (
+                row["last_login"].isoformat(), filtered_row)
+        logger.info(log_message)
+
+    cursor.close()
+    db.close()
